@@ -1,0 +1,26 @@
+name: build installable app
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-release:
+    runs-on: xcode-27
+    steps:
+      - uses: actions/checkout@v6
+      - run: ./.github/gh-actions-runner-xcode-select.sh
+      - run: brew update && brew install bash fish xcbeautify swiftly
+      - run: swiftly init --skip-install --assume-yes --verbose && swiftly install
+      - run: swiftly run swift --version
+      - name: Build release archive
+        run: ./build-release.sh --codesign-identity -
+      - name: Upload installable archive
+        uses: actions/upload-artifact@v7
+        with:
+          path: .release/AeroSpace-v*.zip
+          if-no-files-found: error
+          include-hidden-files: true
+          archive: false
+      - name: Show Xcode build log on failure
+        if: ${{ failure() }}
+        run: 'if test -f ./.release/xcodebuild.log; then cat ./.release/xcodebuild.log; fi'
