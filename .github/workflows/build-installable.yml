@@ -5,7 +5,7 @@ on:
 
 jobs:
   build-release:
-    runs-on: xcode-27
+    runs-on: macos-26
     steps:
       - uses: actions/checkout@v6
       - run: ./.github/gh-actions-runner-xcode-select.sh
